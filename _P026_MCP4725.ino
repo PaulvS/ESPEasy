@@ -1,15 +1,15 @@
 //#######################################################################################################
-//#################################### Plugin 026: PCA9685 ##############################################
+//#################################### Plugin 026: MCP4725 ##############################################
 //#######################################################################################################
 
 #define PLUGIN_026
 #define PLUGIN_ID_026         26
-#define PLUGIN_NAME_026       "DAC - MCP4726"
+#define PLUGIN_NAME_026       "DAC - MCP4725"
 #define PLUGIN_VALUENAME1_026 "DAC"
 
-#define MCP4726_ADDRESS 0x60  // I2C address
-#define MCP4726_CMD_WRITEDAC            (0x40)  // Writes data to the DAC
-#define MCP4726_CMD_WRITEDACEEPROM      (0x60)  // Writes data to the DAC and the EEPROM (persisting the assigned value after reset)
+#define MCP4725_ADDRESS 0x60  // I2C address
+#define MCP4725_CMD_WRITEDAC            (0x40)  // Writes data to the DAC
+#define MCP4725_CMD_WRITEDACEEPROM      (0x60)  // Writes data to the DAC and the EEPROM (persisting the assigned value after reset)
 
   // For Adafruit MCP4725A1 the address is 0x62 (default) or 0x63 (ADDR pin tied to VCC)
   // For MCP4725A0 the address is 0x60 or 0x61
@@ -57,20 +57,20 @@ boolean Plugin_026(byte function, struct EventStruct *event, String& string)
         if (!Plugin_026_init)
         {
           // Display a message if the plugin is run for the first time
-          Serial.println("MCP4726 Init");
+          Serial.println("MCP4725 Init");
           Plugin_026_init = true;
         }
         String tmpString  = string;
         int argIndex = tmpString.indexOf(',');
         if (argIndex)
           tmpString = tmpString.substring(0, argIndex);
-        if (tmpString.equalsIgnoreCase("MCP4726"))
+        if (tmpString.equalsIgnoreCase("MCP4725"))
         {
           success = true;
-          Plugin_026_Write(MCP4726_ADDRESS, event->Par1, event->Par2);
+          Plugin_026_Write(MCP4725_ADDRESS, event->Par1, event->Par2);
           if (printToWeb)
           {
-            printWebString += F("MCP4726, set to:");
+            printWebString += F("MCP4725, set to:");
             printWebString += event->Par1;
             printWebString += F(", persistent: ");
             printWebString += event->Par2;
@@ -98,18 +98,18 @@ boolean Plugin_026(byte function, struct EventStruct *event, String& string)
                 after power-down or reset.
 */
 /**************************************************************************/
-void Plugin_026_Write(uint8_t _i2caddr, uint16_t output, bool writeEEPROM )
+void Plugin_026_Write(uint8_t _i2caddr, uint16_t output, byte writeEEPROM )
 {
   //uint8_t twbrback = TWBR;
   //TWBR = ((F_CPU / 400000L) - 16) / 2; // Set I2C frequency to 400kHz
   Wire.beginTransmission(_i2caddr);
-  if (writeEEPROM)
+  if (writeEEPROM==1)
   {
-    Wire.write(MCP4726_CMD_WRITEDACEEPROM);
+    Wire.write(MCP4725_CMD_WRITEDACEEPROM);
   }
   else
   {
-    Wire.write(MCP4726_CMD_WRITEDAC);
+    Wire.write(MCP4725_CMD_WRITEDAC);
   }
   Wire.write(output / 16);                   // Upper data bits          (D11.D10.D9.D8.D7.D6.D5.D4)
   Wire.write((output % 16) << 4);            // Lower data bits          (D3.D2.D1.D0.x.x.x.x)

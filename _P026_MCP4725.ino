@@ -17,7 +17,7 @@
   
 
 boolean Plugin_026_init = false;
-uint8_t _i2caddr;
+//uint8_t _i2caddr;
   
 boolean Plugin_026(byte function, struct EventStruct *event, String& string)
 {
@@ -56,7 +56,7 @@ boolean Plugin_026(byte function, struct EventStruct *event, String& string)
       {
         if (!Plugin_026_init)
         {
-          // default mode is open drain ouput, drive leds connected to VCC
+          // Display a message if the plugin is run for the first time
           Serial.println("MCP4726 Init");
           Plugin_026_init = true;
         }
@@ -100,8 +100,8 @@ boolean Plugin_026(byte function, struct EventStruct *event, String& string)
 /**************************************************************************/
 void Plugin_026_Write(uint8_t _i2caddr, uint16_t output, bool writeEEPROM )
 {
-  uint8_t twbrback = TWBR;
-  TWBR = ((F_CPU / 400000L) - 16) / 2; // Set I2C frequency to 400kHz
+  //uint8_t twbrback = TWBR;
+  //TWBR = ((F_CPU / 400000L) - 16) / 2; // Set I2C frequency to 400kHz
   Wire.beginTransmission(_i2caddr);
   if (writeEEPROM)
   {
@@ -114,6 +114,6 @@ void Plugin_026_Write(uint8_t _i2caddr, uint16_t output, bool writeEEPROM )
   Wire.write(output / 16);                   // Upper data bits          (D11.D10.D9.D8.D7.D6.D5.D4)
   Wire.write((output % 16) << 4);            // Lower data bits          (D3.D2.D1.D0.x.x.x.x)
   Wire.endTransmission();
-  TWBR = twbrback;
+  //TWBR = twbrback;
 }
 
